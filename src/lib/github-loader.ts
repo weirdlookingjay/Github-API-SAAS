@@ -28,7 +28,7 @@ export const loadGithubRepo = async (
   return docs;
 };
 
-export const indexGithunRepo = async (
+export const indexGithubRepo = async (
   projectId: string,
   githubUrl: string,
   githubToken?: string,
