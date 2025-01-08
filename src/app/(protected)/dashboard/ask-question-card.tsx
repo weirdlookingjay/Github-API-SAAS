@@ -11,6 +11,8 @@ import { askQuestion } from "./actions"
 import { readStreamableValue } from "ai/rsc";
 import MDEditor from "@uiw/react-md-editor"
 import CodeReferences from "./code-references"
+import { api } from "@/trpc/react"
+import { toast } from "sonner"
 
 const AskQuestionCard = () => {
     const { project } = useProject()
@@ -19,6 +21,7 @@ const AskQuestionCard = () => {
     const [loading, setLoading] = useState(false)
     const [filesReferences, setFilesReferences] = useState<{ fileName: string; sourceCode: string; summary: string }[]>([])
     const [answer, setAnswer] = useState("")
+    const saveAnswer = api.project.saveAnswer.useMutation();
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -45,9 +48,28 @@ const AskQuestionCard = () => {
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent className="sm:max-w-[80vw]">
                     <DialogHeader>
-                        <DialogTitle>
-                            <Image src="/logo.png" alt="" width={40} height={40} />
-                        </DialogTitle>
+                        <div className="flex items-center gap-2">
+                            <DialogTitle>
+                                <Image src="/logo.png" alt="" width={40} height={40} />
+                            </DialogTitle>
+                            <Button disabled={saveAnswer.isPending} variant={"outline"} onClick={() => {
+                                saveAnswer.mutate({
+                                    projectId: project!.id,
+                                    question,
+                                    answer,
+                                    filesReferences
+                                }, {
+                                    onSuccess: () => {
+                                        toast.success("Answer saved successfully!")
+                                    },
+                                    onError: () => {
+                                        toast.error("Failed to save answer");
+                                    }
+                                })
+                            }}>
+                                Save Answer
+                            </Button>
+                        </div>
                     </DialogHeader>
 
                     <MDEditor.Markdown source={answer} className="max-w-[70vw] !h-full max-h-[40vh] overflow-scroll" />
@@ -58,23 +80,6 @@ const AskQuestionCard = () => {
                         Close
                     </Button>
 
-                    {/* <div className="prose max-w-none">
-                        {loading ? (
-                            <div className="flex items-center justify-center">
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                            </div>
-                        ) : (
-                            answer
-                        )}
-                    </div> */}
-                    {/* <h1>File References</h1>
-                    <div className="space-y-2">
-                        {filesReferences.map(file => (
-                            <div key={file.fileName} className="p-2 rounded bg-muted">
-                                <span className="font-medium">{file.fileName}</span>
-                            </div>
-                        ))}
-                    </div> */}
                 </DialogContent>
             </Dialog>
 
