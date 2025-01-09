@@ -38,6 +38,7 @@ model Project {
     commits              Commit[]
     sourceCodeEmbeddings SourceCodeEmbedding[]
     savedQuestions       Question[]
+    meetings             Meeting[]
 }
 
 model UserToProject {
@@ -62,6 +63,39 @@ model SourceCodeEmbedding {
 
     projectId String
     project   Project @relation(fields: [projectId], references: [id])
+}
+
+enum MeetingStatus {
+    PROCESSING
+    COMPLETED
+}
+
+model Issue {
+    id       String @id @default(cuid())
+    start    String
+    end      String
+    gist     String
+    headline String
+    summary  String
+
+    meetingId String
+    meeting   Meeting @relation(fields: [meetingId], references: [id])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Meeting {
+    id         String        @id @default(cuid())
+    name       String
+    meetingUrl String
+    status     MeetingStatus @default(PROCESSING)
+    issues     Issue[]
+
+    projectId String
+    project   Project  @relation(fields: [projectId], references: [id])
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }
 
 model Question {
