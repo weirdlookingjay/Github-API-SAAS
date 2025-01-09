@@ -22,8 +22,9 @@ model User {
     createdAt    DateTime @default(now())
     updatedAt    DateTime @updatedAt
 
-    userToProjects UserToProject[]
-    questionsAked  Question[]
+    userToProjects    UserToProject[]
+    questionsAked     Question[]
+    stripeTransaction StripeTransaction[]
 }
 
 model Project {
@@ -63,6 +64,16 @@ model SourceCodeEmbedding {
 
     projectId String
     project   Project @relation(fields: [projectId], references: [id])
+}
+
+model StripeTransaction {
+    id      String @id @default(cuid())
+    credits Int
+    userId  String
+    user    User   @relation(fields: [userId], references: [id])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }
 
 enum MeetingStatus {
